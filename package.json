@@ -1,0 +1,19 @@
+{
+  "name": "efile-desktop-app",
+  "version": "1.0.0",
+  "description": "Desktop app to efile forms",
+  "main": "./dist/js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "Ravi Kumar",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/request": "^2.48.1",
+    "electron": "3.0.11"
+  },
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}

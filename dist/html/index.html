@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="../css/index.css" />
+</head>
+
+<body>
+    <input id="test" />
+    <p id="pageLoadStatus"></p>
+    <webview id="webview" 
+        src="https://ceac.state.gov"         
+        allowpopups>
+    </webview>
+
+    <script> var exports = {}; </script> <!--Hack for the error "exports is not defined"-->
+    <script type="text/javascript" src="../js/index.js"></script>
+</body>
+
+</html>
