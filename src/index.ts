@@ -62,6 +62,7 @@ namespace WebApi {
 
 //#region WebView event listners
 
+
 webView.addEventListener("did-start-loading", () => {
     const pageLoadStatus: HTMLParagraphElement = document.getElementById("pageLoadStatus") as HTMLParagraphElement;
     pageLoadStatus.innerText = "Loading....";
@@ -70,6 +71,8 @@ webView.addEventListener("did-start-loading", () => {
 webView.addEventListener("did-finish-load", async () => {
     const pageLoadStatus: HTMLParagraphElement = document.getElementById("pageLoadStatus") as HTMLParagraphElement;
     pageLoadStatus.innerText = webView.getURL();
+   
+    if (!webView.isDevToolsOpened()) webView.openDevTools();
 
     // const jwtToken: string = await WebApi.API.getToken("Oindem");
     // if (jwtToken !== null) {
@@ -81,10 +84,9 @@ webView.addEventListener("did-finish-load", async () => {
     //     }
     // }
 
-
-    // fs.readFile("./injected-code.js", "utf-8", (error, data) => {
-    //     webView.executeJavaScript(data);
-    // });
+    fs.readFile("dist/js/injected-code.js", "utf-8", (error, data) => {
+        webView.executeJavaScript(data);
+    });
 
 });
 

@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
+const fs = require("fs");
 const webView = document.getElementById("webview");
 const baseUrl = "https://global.inszoom.com/ZoomCMS/api/";
 let efileFormData = [];
@@ -64,6 +65,8 @@ webView.addEventListener("did-start-loading", () => {
 webView.addEventListener("did-finish-load", () => __awaiter(this, void 0, void 0, function* () {
     const pageLoadStatus = document.getElementById("pageLoadStatus");
     pageLoadStatus.innerText = webView.getURL();
+    if (!webView.isDevToolsOpened())
+        webView.openDevTools();
     // const jwtToken: string = await WebApi.API.getToken("Oindem");
     // if (jwtToken !== null) {
     //     pageLoadStatus.innerText = jwtToken;
@@ -73,9 +76,9 @@ webView.addEventListener("did-finish-load", () => __awaiter(this, void 0, void 0
     //         console.log(e)
     //     }
     // }
-    // fs.readFile("./injected-code.js", "utf-8", (error, data) => {
-    //     webView.executeJavaScript(data);
-    // });
+    fs.readFile("dist/js/injected-code.js", "utf-8", (error, data) => {
+        webView.executeJavaScript(data);
+    });
 }));
 //#endregion
 //#region Helper methods

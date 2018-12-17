@@ -85,14 +85,16 @@ function onTokenGetFailure(value) {
 }
 function StartEFile(efileFormData) {
     alert("efile started");
-    // const currentPageUrl: string = document.URL;
-    // const fields: EFileFieldDTO[] = efileFormData.filter(field => field.page_url === currentPageUrl);
-    // fields.forEach(field => {
-    //     const correspondingElement = document.getElementById(field.control_id);
-    //     if (correspondingElement != null && correspondingElement instanceof HTMLInputElement) {
-    //         correspondingElement.value = field.Value;
-    //     }
-    // });
+    const currentPageUrl = document.URL;
+    const fields = efileFormData.filter(field => field.page_url === currentPageUrl);
+    fields.forEach(field => {
+        console.log(`control_id: ${field.control_id}`);
+        const correspondingElement = document.getElementById(field.control_id);
+        if (correspondingElement != null && correspondingElement instanceof HTMLInputElement) {
+            correspondingElement.value = field.Value;
+        }
+    });
 }
 //#endregion
 WebApi.API.getToken("Oindem").then(onTokenGetSuccess, onTokenGetFailure);
+console.log("Hellow world from injected code");

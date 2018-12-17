@@ -1,7 +1,4 @@
-import { WebviewTag } from "electron"
 import request = require("request");
-import { METHODS } from "http";
-import { url } from "inspector";
 
 const baseUrl: string = "https://global.inszoom.com/ZoomCMS/api/";
 
@@ -46,7 +43,7 @@ namespace WebApi {
                             reject(response);
                         }
                     }
-                );              
+                );
             });
         }
     }
@@ -69,7 +66,7 @@ async function getEFileFormData(jwtToken: string): Promise<EFileFieldDTO[]> {
     };
 
     const result: EFileFieldDTO[] = await WebApi.API.getEFileFormData(dto);
-    return result;   
+    return result;
 }
 
 async function getToken(orgId: string): Promise<string> {
@@ -92,6 +89,7 @@ function StartEFile(efileFormData: EFileFieldDTO[]): void {
     const currentPageUrl: string = document.URL;
     const fields: EFileFieldDTO[] = efileFormData.filter(field => field.page_url === currentPageUrl);
     fields.forEach(field => {
+        console.log(`control_id: ${field.control_id}`);
         const correspondingElement = document.getElementById(field.control_id);
         if (correspondingElement != null && correspondingElement instanceof HTMLInputElement) {
             correspondingElement.value = field.Value;
@@ -102,4 +100,6 @@ function StartEFile(efileFormData: EFileFieldDTO[]): void {
 //#endregion
 
 WebApi.API.getToken("Oindem").then(onTokenGetSuccess, onTokenGetFailure);
+
+console.log("Hellow world from injected code");
 
