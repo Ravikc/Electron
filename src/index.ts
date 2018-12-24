@@ -1,15 +1,11 @@
 import { WebviewTag } from "electron"
 import request = require("request");
 import fs = require("fs");
+import { resolve } from "path";
 
 const webView: WebviewTag = document.getElementById("webview") as WebviewTag;
 const baseUrl: string = "https://global.inszoom.com/ZoomCMS/api/";
 let efileFormData: EFileFieldDTO[] = [];
-
-let e = document.getElementById("test") instanceof HTMLInputElement;
-if (e === true) {
-    (document.getElementById("test") as HTMLInputElement).value = "test";
-}
 
 //#region API
 
@@ -33,6 +29,7 @@ namespace WebApi {
 
         static getEFileFormData(efileFormDataDTO: EFileFormDataDTO): Promise<EFileFieldDTO[]> {
             return new Promise<EFileFieldDTO[]>((resolve, reject) => {
+                
                 const requestOptions = {
                     json: efileFormDataDTO,
                     headers: {
@@ -52,7 +49,7 @@ namespace WebApi {
                             reject(response);
                         }
                     }
-                );              
+                );
             });
         }
     }
@@ -62,32 +59,22 @@ namespace WebApi {
 
 //#region WebView event listners
 
+webView.addEventListener("dom-ready", () => {
+    if (!webView.isDevToolsOpened()) {
+        webView.openDevTools();
+    }
+    
+    console.log("webview dom ready");
 
-webView.addEventListener("did-start-loading", () => {
-    const pageLoadStatus: HTMLParagraphElement = document.getElementById("pageLoadStatus") as HTMLParagraphElement;
-    pageLoadStatus.innerText = "Loading....";
-});
-
-webView.addEventListener("did-finish-load", async () => {
     const pageLoadStatus: HTMLParagraphElement = document.getElementById("pageLoadStatus") as HTMLParagraphElement;
     pageLoadStatus.innerText = webView.getURL();
-   
-    if (!webView.isDevToolsOpened()) webView.openDevTools();
 
-    // const jwtToken: string = await WebApi.API.getToken("Oindem");
-    // if (jwtToken !== null) {
-    //     pageLoadStatus.innerText = jwtToken;
-    //     try {
-    //         efileFormData = await getEFileFormData(jwtToken);
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    // }
-
-    fs.readFile("dist/js/injected-code.js", "utf-8", (error, data) => {
-        webView.executeJavaScript(data);
-    });
-
+    if (efileFormData != null && efileFormData.length > 0) {
+        const efileDataForThisPage = efileFormData.filter(d => d.Page_URL === webView.getURL());
+        debugger;
+        console.log(`sending start-efile message with data: ${efileDataForThisPage}`);
+        webView.send("start-efile", efileDataForThisPage);
+    }
 });
 
 //#endregion
@@ -106,11 +93,33 @@ async function getEFileFormData(jwtToken: string): Promise<EFileFieldDTO[]> {
         jwtToken: jwtToken
     };
 
-
     const result: EFileFieldDTO[] = await WebApi.API.getEFileFormData(dto);
-    debugger;
-    return result;   
+    return result;
+}
+
+async function loadEFileData(): Promise<EFileFieldDTO[]> {
+    return new Promise<EFileFieldDTO[]>(async (resolve, reject) => {
+        const jwtToken: string = await WebApi.API.getToken("Oindem");
+        if (jwtToken !== null) {
+            try {
+                const efileFormDTO = await getEFileFormData(jwtToken);
+                resolve(efileFormDTO);
+            }
+            catch (e) {
+                console.log(e);
+                reject(e);
+            }
+        }
+    });
 }
 
 //#endregion
 
+//#region Events for this page
+
+document.addEventListener("DOMContentLoaded", async () => {
+    efileFormData = await loadEFileData();
+    console.log("EFile Data Loaded");
+})
+
+//#endregion

@@ -1,5 +1,5 @@
 interface EFileFieldDTO {
-    page_url: string;
+    Page_URL: string;
     control_id: string;
     Value: string;
 }

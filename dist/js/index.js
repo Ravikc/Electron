@@ -9,14 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
-const fs = require("fs");
 const webView = document.getElementById("webview");
 const baseUrl = "https://global.inszoom.com/ZoomCMS/api/";
 let efileFormData = [];
-let e = document.getElementById("test") instanceof HTMLInputElement;
-if (e === true) {
-    document.getElementById("test").value = "test";
-}
 //#region API
 var WebApi;
 (function (WebApi) {
@@ -58,28 +53,20 @@ var WebApi;
 })(WebApi || (WebApi = {}));
 //#endregion
 //#region WebView event listners
-webView.addEventListener("did-start-loading", () => {
-    const pageLoadStatus = document.getElementById("pageLoadStatus");
-    pageLoadStatus.innerText = "Loading....";
-});
-webView.addEventListener("did-finish-load", () => __awaiter(this, void 0, void 0, function* () {
+webView.addEventListener("dom-ready", () => {
+    if (!webView.isDevToolsOpened()) {
+        webView.openDevTools();
+    }
+    console.log("webview dom ready");
     const pageLoadStatus = document.getElementById("pageLoadStatus");
     pageLoadStatus.innerText = webView.getURL();
-    if (!webView.isDevToolsOpened())
-        webView.openDevTools();
-    // const jwtToken: string = await WebApi.API.getToken("Oindem");
-    // if (jwtToken !== null) {
-    //     pageLoadStatus.innerText = jwtToken;
-    //     try {
-    //         efileFormData = await getEFileFormData(jwtToken);
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    // }
-    fs.readFile("dist/js/injected-code.js", "utf-8", (error, data) => {
-        webView.executeJavaScript(data);
-    });
-}));
+    if (efileFormData != null && efileFormData.length > 0) {
+        const efileDataForThisPage = efileFormData.filter(d => d.Page_URL === webView.getURL());
+        debugger;
+        console.log(`sending start-efile message with data: ${efileDataForThisPage}`);
+        webView.send("start-efile", efileDataForThisPage);
+    }
+});
 //#endregion
 //#region Helper methods
 function getEFileFormData(jwtToken) {
@@ -95,8 +82,30 @@ function getEFileFormData(jwtToken) {
             jwtToken: jwtToken
         };
         const result = yield WebApi.API.getEFileFormData(dto);
-        debugger;
         return result;
     });
 }
+function loadEFileData() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const jwtToken = yield WebApi.API.getToken("Oindem");
+            if (jwtToken !== null) {
+                try {
+                    const efileFormDTO = yield getEFileFormData(jwtToken);
+                    resolve(efileFormDTO);
+                }
+                catch (e) {
+                    console.log(e);
+                    reject(e);
+                }
+            }
+        }));
+    });
+}
+//#endregion
+//#region Events for this page
+document.addEventListener("DOMContentLoaded", () => __awaiter(this, void 0, void 0, function* () {
+    efileFormData = yield loadEFileData();
+    console.log("EFile Data Loaded");
+}));
 //#endregion
